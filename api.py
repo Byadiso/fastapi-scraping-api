@@ -1,26 +1,37 @@
+import os
 from fastapi import FastAPI
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-import os
-from bs4 import BeautifulSoup  # Make sure BeautifulSoup is imported
+from bs4 import BeautifulSoup  # Ensure BeautifulSoup is imported
+import subprocess
 
 app = FastAPI()
 
-# Setup Selenium WebDriver
+# Debugging: Print the path to Chromium on Render
+chromium_path = subprocess.getoutput('which chromium')
+chromium_browser_path = subprocess.getoutput('which chromium-browser')
+print(f"Chromium path: {chromium_path}")
+print(f"Chromium Browser path: {chromium_browser_path}")
+
+# Initialize Chrome Options
 chrome_options = Options()
 
-# Check if we are in a cloud environment (e.g. Render) and use the Chromium path if it exists.
+# Check if running on Render and set Chromium binary location
 if os.getenv('RENDER_ENV', 'false') == 'true':
-    chrome_options.binary_location = '/usr/bin/chromium'  # Path to Chromium in Render
-else:
-    chrome_options.add_argument("--no-sandbox")  # Additional flags for local usage
-    chrome_options.add_argument("--disable-dev-shm-usage")
+    if chromium_path:
+        chrome_options.binary_location = chromium_path
+    elif chromium_browser_path:
+        chrome_options.binary_location = chromium_browser_path
 
-chrome_options.add_argument("--headless")  # Run in headless mode
+# Add necessary arguments
+chrome_options.add_argument("--headless")  # Ensure headless mode is enabled
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+chrome_options.add_argument("--disable-gpu")
 
-# Use the ChromeDriverManager to install the correct chromedriver version.
+# Initialize WebDriver
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
 # Function to scrape match data
