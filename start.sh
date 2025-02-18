@@ -36,8 +36,16 @@ if [ "$RENDER" == "true" ]; then
   CHROMIUM_VERSION=$(find ./chromium/ -type f -name "chrome" -exec ./{} --version \; | awk '{print $3}')
   echo "Chromium version: $CHROMIUM_VERSION"
 
-  # Download the matching ChromeDriver version
-  CHROMEDRIVER_VERSION="135.0.7022.0"  # The version that matches Chromium 135
+  # Download the matching ChromeDriver version based on Chromium version
+  # Let's assume ChromeDriver version 135 is needed for Chromium 135
+  if [[ "$CHROMIUM_VERSION" == "135."* ]]; then
+    CHROMEDRIVER_VERSION="135.0.7022.0"  # The version that matches Chromium 135
+  else
+    echo "Error: Unable to find matching ChromeDriver for Chromium version $CHROMIUM_VERSION!"
+    exit 1
+  fi
+
+  # Download the correct ChromeDriver
   echo "Downloading ChromeDriver for Chromium version $CHROMEDRIVER_VERSION..."
   wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" -O chromedriver.zip
 
