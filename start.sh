@@ -5,9 +5,17 @@ echo "Installing Chromium..."
 # Update package list and install Chromium
 apt-get update && apt-get install -y chromium-browser
 
-# Set environment variables to use Chromium
-export GOOGLE_CHROME_BIN="/usr/bin/chromium-browser"
-export CHROMIUM_PATH="/usr/bin/chromium-browser"
+# Find the actual Chromium binary path
+CHROME_PATH=$(which chromium-browser || which chromium)
+
+if [ -z "$CHROME_PATH" ]; then
+    echo "Error: Chromium not found!"
+    exit 1
+fi
+
+# Set environment variables for Chromium
+export GOOGLE_CHROME_BIN="$CHROME_PATH"
+export CHROMIUM_PATH="$CHROME_PATH"
 
 echo "Chromium installed at $GOOGLE_CHROME_BIN"
 
