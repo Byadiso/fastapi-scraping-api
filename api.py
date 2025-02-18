@@ -13,17 +13,20 @@ import atexit
 
 app = FastAPI()
 
-# Detect Chromium and ChromeDriver paths
-if os.getenv("RENDER", "false") == "true":
-    # Render environment paths
-    chromium_path = "/usr/bin/google-chrome"
-else:
-    # Local environment paths, update as necessary
-    chromium_path = subprocess.getoutput("where chrome") or subprocess.getoutput("where google-chrome")
+# Get Chromium binary path from environment variable (set by your shell script on Render)
+chromium_path = os.getenv("GOOGLE_CHROME_BIN")
 
-    # If chrome path not found, provide a direct path to chrome executable
-    if not chromium_path:
-        chromium_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"  # Update if different
+# Fallback for local environment if GOOGLE_CHROME_BIN is not set
+if not chromium_path:
+    # Set default path for local environments (adjust if necessary)
+    if os.name == "nt":  # Windows
+        chromium_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+    else:  # Linux/macOS
+        chromium_path = "/usr/bin/google-chrome"  # or the path where Chrome is installed
+
+if not os.path.exists(chromium_path):
+    print(f"Error: Google Chrome binary not found at {chromium_path}")
+    exit(1)
 
 print(f"Google Chrome path: {chromium_path}")
 
