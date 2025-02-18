@@ -32,21 +32,24 @@ if [ "$RENDER" == "true" ]; then
     export CHROMIUM_PATH="$CHROME_PATH"
   fi
 
-  # Determine the version of Chromium
-  CHROMIUM_VERSION=$(find ./chromium/ -type f -name "chrome" -exec ./{} --version \; | awk '{print $3}')
-  echo "Chromium version: $CHROMIUM_VERSION"
+  # Get Chromium version
+  CHROMIUM_VERSION=$(./chromium/chrome-linux/chrome --version 2>&1 | awk '{print $3}' | cut -d'.' -f1,2)
+  echo "Chromium version detected: $CHROMIUM_VERSION"
 
-  # Download the matching ChromeDriver version based on Chromium version
-  # Let's assume ChromeDriver version 135 is needed for Chromium 135
-  if [[ "$CHROMIUM_VERSION" == "135."* ]]; then
-    CHROMEDRIVER_VERSION="135.0.7022.0"  # The version that matches Chromium 135
-  else
-    echo "Error: Unable to find matching ChromeDriver for Chromium version $CHROMIUM_VERSION!"
-    exit 1
-  fi
+  # Download the matching ChromeDriver version for Chromium
+  # Note: We'll now directly match the version based on Chromium version
+  case "$CHROMIUM_VERSION" in
+    "135.0")
+      CHROMEDRIVER_VERSION="135.0.7022.0"
+      ;;
+    *)
+      echo "Error: No matching ChromeDriver version for Chromium version $CHROMIUM_VERSION!"
+      exit 1
+      ;;
+  esac
 
-  # Download the correct ChromeDriver
-  echo "Downloading ChromeDriver for Chromium version $CHROMEDRIVER_VERSION..."
+  # Download the correct ChromeDriver for the Chromium version
+  echo "Downloading ChromeDriver version $CHROMEDRIVER_VERSION..."
   wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" -O chromedriver.zip
 
   # Unzip and move ChromeDriver to the proper location
