@@ -3,22 +3,22 @@
 echo "Installing dependencies..."
 apt-get update && apt-get install -y wget curl unzip gnupg
 
-# Download a pre-built portable version of Chromium
+# Download a pre-built portable version of Chromium to a writable directory
 echo "Downloading Chromium..."
-mkdir -p /opt/chromium
-wget -qO /opt/chromium/chrome.zip "https://download-chromium.appspot.com/dl/Linux_x64"
+mkdir -p ./chromium
+wget -qO ./chromium/chrome.zip "https://download-chromium.appspot.com/dl/Linux_x64"
 
 # Unzip the downloaded file
 echo "Extracting Chromium..."
-unzip /opt/chromium/chrome.zip -d /opt/chromium/
-rm /opt/chromium/chrome.zip
+unzip ./chromium/chrome.zip -d ./chromium/
+rm ./chromium/chrome.zip
 
 # Log the directory structure to see where the binaries are
-echo "Listing contents of /opt/chromium:"
-ls -l /opt/chromium/
+echo "Listing contents of ./chromium:"
+ls -l ./chromium/
 
 # Search for the chromium binary
-CHROME_PATH=$(find /opt/chromium/ -type f -name "chrome" | head -n 1)
+CHROME_PATH=$(find ./chromium/ -type f -name "chrome" | head -n 1)
 
 # Log if binary is found or not
 if [ -z "$CHROME_PATH" ]; then
