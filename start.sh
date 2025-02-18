@@ -2,7 +2,7 @@
 
 echo "Installing dependencies..."
 
-# Only install on Render (use environment variable check)
+# Only install on Render (check the environment variable to ensure we're on Render)
 if [ "$RENDER" == "true" ]; then
   echo "Installing Chromium on Render..."
 
@@ -11,20 +11,20 @@ if [ "$RENDER" == "true" ]; then
 
   # Download and extract Chromium (Force version 114 for compatibility)
   mkdir -p ./chromium
-  wget -qO ./chromium/chrome.zip "https://download-chromium.appspot.com/dl/Linux_x64?type=tar"
-  
-  # Extract the tar.gz file instead of zip (correct format)
-  tar -xvzf ./chromium/chrome.zip -C ./chromium/
-  rm ./chromium/chrome.zip
+  wget -qO ./chromium/chrome.tar.xz "https://download-chromium.appspot.com/dl/Linux_x64?type=tar"
+
+  # Extract the tar.xz file correctly (use tar with xz flag)
+  tar -xvJf ./chromium/chrome.tar.xz -C ./chromium/
+  rm ./chromium/chrome.tar.xz
 
   # Log the directory structure to see where the binaries are
   echo "Listing contents of ./chromium:"
   ls -l ./chromium/
 
-  # Find the Chromium binary
+  # Find the Chromium binary inside the extracted directory
   CHROME_PATH=$(find ./chromium/ -type f -name "chrome" | head -n 1)
 
-  # Log and set the binary
+  # Log and set the binary path
   if [ -z "$CHROME_PATH" ]; then
     echo "Error: Chromium not found after manual download!"
     exit 1
@@ -34,11 +34,11 @@ if [ "$RENDER" == "true" ]; then
     export CHROMIUM_PATH="$CHROME_PATH"
   fi
 
-  # Ensure matching ChromeDriver version 114.0.5735.90
+  # Ensure matching ChromeDriver version for Chromium 114.0.5735.90
   CHROMIUM_VERSION="114.0.5735.90"  # Explicit version for Chromium 114
   echo "Chromium version forced to $CHROMIUM_VERSION"
 
-  # Download ChromeDriver for version 114
+  # Download ChromeDriver for version 114.0.5735.90
   echo "Downloading ChromeDriver for Chromium version 114..."
   wget -q "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip" -O chromedriver.zip
 
