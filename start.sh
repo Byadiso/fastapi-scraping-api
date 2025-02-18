@@ -1,45 +1,29 @@
 #!/bin/bash
 
+echo "Updating package list..."
+apt-get update
+
 echo "Installing Chromium..."
+apt-get install -y chromium-browser
 
-# Update package list and install Chromium
-apt-get update && apt-get install -y chromium-browser
+echo "Checking Chromium installation..."
+which chromium-browser || which chromium || which google-chrome
 
-# Find the actual Chromium binary path
-CHROME_PATH=$(which chromium-browser || which chromium)
-
-if [ -z "$CHROME_PATH" ]; then
-    echo "Error: Chromium not found!"
+# Find Chromium binary manually
+if [ -f "/usr/bin/chromium-browser" ]; then
+    export GOOGLE_CHROME_BIN="/usr/bin/chromium-browser"
+elif [ -f "/usr/bin/chromium" ]; then
+    export GOOGLE_CHROME_BIN="/usr/bin/chromium"
+elif [ -f "/usr/bin/google-chrome" ]; then
+    export GOOGLE_CHROME_BIN="/usr/bin/google-chrome"
+else
+    echo "Error: Chromium not found after installation!"
     exit 1
 fi
 
-# Set environment variables for Chromium
-export GOOGLE_CHROME_BIN="$CHROME_PATH"
-export CHROMIUM_PATH="$CHROME_PATH"
-
-echo "Chromium installed at $GOOGLE_CHROME_BIN"
-
-# Start FastAPI app
-uvicorn api:app --host 0.0.0.0 --port 10000#!/bin/bash
-
-echo "Installing Chromium manually..."
-
-# Update package list
-apt-get update
-
-# Install required dependencies
-apt-get install -y wget curl unzip gnupg software-properties-common
-
-# Download Chromium directly
-mkdir -p /opt/chromium
-wget -qO- https://download-chromium.appspot.com/dl/Linux_x64 | tar xJ -C /opt/chromium
-
-# Set environment variables for Chromium
-export GOOGLE_CHROME_BIN="/opt/chromium/chrome"
-export CHROMIUM_PATH="/opt/chromium/chrome"
+export CHROMIUM_PATH="$GOOGLE_CHROME_BIN"
 
 echo "Chromium installed at $GOOGLE_CHROME_BIN"
 
 # Start FastAPI app
 uvicorn api:app --host 0.0.0.0 --port 10000
-
