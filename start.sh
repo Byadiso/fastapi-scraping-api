@@ -1,27 +1,29 @@
 #!/bin/bash
 
-echo "Updating package list..."
-apt-get update
+echo "Installing dependencies..."
+apt-get update && apt-get install -y wget curl unzip gnupg
 
-echo "Installing Chromium..."
-apt-get install -y chromium-browser
+# Download a pre-built portable version of Chromium
+echo "Downloading Chromium..."
+mkdir -p /opt/chromium
+wget -qO /opt/chromium/chrome.zip "https://download-chromium.appspot.com/dl/Linux_x64"
 
-echo "Checking Chromium installation..."
-which chromium-browser || which chromium || which google-chrome
+# Unzip the downloaded file
+echo "Extracting Chromium..."
+unzip /opt/chromium/chrome.zip -d /opt/chromium/
+rm /opt/chromium/chrome.zip
 
-# Find Chromium binary manually
-if [ -f "/usr/bin/chromium-browser" ]; then
-    export GOOGLE_CHROME_BIN="/usr/bin/chromium-browser"
-elif [ -f "/usr/bin/chromium" ]; then
-    export GOOGLE_CHROME_BIN="/usr/bin/chromium"
-elif [ -f "/usr/bin/google-chrome" ]; then
-    export GOOGLE_CHROME_BIN="/usr/bin/google-chrome"
-else
-    echo "Error: Chromium not found after installation!"
+# Find the Chromium binary
+CHROME_PATH=$(find /opt/chromium/ -type f -name "chrome" | head -n 1)
+
+if [ -z "$CHROME_PATH" ]; then
+    echo "Error: Chromium not found after manual download!"
     exit 1
 fi
 
-export CHROMIUM_PATH="$GOOGLE_CHROME_BIN"
+# Set environment variables to use the downloaded Chromium binary
+export GOOGLE_CHROME_BIN="$CHROME_PATH"
+export CHROMIUM_PATH="$CHROME_PATH"
 
 echo "Chromium installed at $GOOGLE_CHROME_BIN"
 
