@@ -28,7 +28,23 @@ if [ "$RENDER" == "true" ]; then
     export CHROMIUM_PATH="$CHROME_PATH"
   fi
 
-  echo "Chromium installed at $GOOGLE_CHROME_BIN"
+  # Determine the version of Chromium
+  CHROMIUM_VERSION=$(./chromium/chrome --version | awk '{print $3}')
+  echo "Chromium version: $CHROMIUM_VERSION"
+
+  # Download the matching ChromeDriver version
+  echo "Downloading ChromeDriver for Chromium version $CHROMIUM_VERSION..."
+  wget -q "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip" -O chromedriver.zip
+
+  # Unzip and move ChromeDriver to the proper location
+  unzip chromedriver.zip
+  mv chromedriver /usr/local/bin/chromedriver
+  rm chromedriver.zip
+
+  echo "ChromeDriver installed at /usr/local/bin/chromedriver"
+else
+  # Handle local environment (do nothing related to Chromium installation)
+  echo "Running locally - skipping Chromium installation"
 fi
 
 # Start FastAPI app
