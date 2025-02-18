@@ -15,6 +15,10 @@ if [ "$RENDER" == "true" ]; then
   unzip ./chromium/chrome.zip -d ./chromium/
   rm ./chromium/chrome.zip
 
+  # Log the directory structure to see where the binaries are
+  echo "Listing contents of ./chromium:"
+  ls -l ./chromium/
+
   # Find the Chromium binary
   CHROME_PATH=$(find ./chromium/ -type f -name "chrome" | head -n 1)
 
@@ -29,7 +33,7 @@ if [ "$RENDER" == "true" ]; then
   fi
 
   # Determine the version of Chromium
-  CHROMIUM_VERSION=$(./chromium/chrome --version | awk '{print $3}')
+  CHROMIUM_VERSION=$(find ./chromium/ -type f -name "chrome" -exec ./{} --version \; | awk '{print $3}')
   echo "Chromium version: $CHROMIUM_VERSION"
 
   # Download the matching ChromeDriver version
