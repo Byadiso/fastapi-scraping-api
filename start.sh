@@ -12,6 +12,8 @@ if [ "$RENDER" == "true" ]; then
   # Download and extract Chromium (Force version 114 for compatibility)
   mkdir -p ./chromium
   wget -qO ./chromium/chrome.zip "https://download-chromium.appspot.com/dl/Linux_x64?type=tar"
+  
+  # Extract the tar.gz file instead of zip (correct format)
   tar -xvzf ./chromium/chrome.zip -C ./chromium/
   rm ./chromium/chrome.zip
 
