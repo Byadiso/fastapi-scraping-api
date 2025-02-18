@@ -42,7 +42,7 @@ chrome_options.binary_location = chromium_path
 
 # Create a Selenium WebDriver instance using webdriver-manager to automatically handle ChromeDriver version
 def get_driver():
-    # This will automatically download and setup the correct version of ChromeDriver
+    # This will automatically download and setup the correct version of ChromeDriver that matches your installed Chrome
     chrome_driver_path = ChromeDriverManager().install()
     chrome_service = Service(chrome_driver_path)
     return webdriver.Chrome(service=chrome_service, options=chrome_options)
