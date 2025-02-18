@@ -4,17 +4,28 @@ from fastapi import FastAPI
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from webdriver_manager.chrome import ChromeDriverManager
 import atexit
 
 app = FastAPI()
 
 # Detect Chromium and ChromeDriver paths
-chromium_path = subprocess.getoutput("which google-chrome") or subprocess.getoutput("which chromium")
-chromedriver_path = subprocess.getoutput("which chromedriver")
+if os.getenv("RENDER", "false") == "true":
+    # Render environment paths
+    chromium_path = "/usr/bin/google-chrome"
+else:
+    # Local environment paths, update as necessary
+    chromium_path = subprocess.getoutput("where chrome") or subprocess.getoutput("where google-chrome")
+
+    # If chrome path not found, provide a direct path to chrome executable
+    if not chromium_path:
+        chromium_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"  # Update if different
 
 print(f"Google Chrome path: {chromium_path}")
-print(f"ChromeDriver path: {chromedriver_path}")
 
 # Initialize Chrome Options
 chrome_options = Options()
@@ -26,9 +37,11 @@ chrome_options.add_argument("--disable-gpu")
 # Set the correct Chromium binary location
 chrome_options.binary_location = chromium_path
 
-# Create a Selenium WebDriver instance
+# Create a Selenium WebDriver instance using webdriver-manager to automatically handle ChromeDriver version
 def get_driver():
-    chrome_service = Service(chromedriver_path)
+    # This will automatically download and setup the correct version of ChromeDriver
+    chrome_driver_path = ChromeDriverManager().install()
+    chrome_service = Service(chrome_driver_path)
     return webdriver.Chrome(service=chrome_service, options=chrome_options)
 
 # Scrape Matches
@@ -37,28 +50,37 @@ def scrape_matches():
         driver = get_driver()
         url = "https://superbet.pl/zaklady-bukmacherskie/pilka-nozna/dzisiaj"
         driver.get(url)
-        driver.implicitly_wait(5)
+
+        # Wait until the elements are available on the page (change this condition as per your requirement)
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "event-card"))
+        )
 
         soup = BeautifulSoup(driver.page_source, "html.parser")
         driver.quit()
 
         matches = []
         for match_element in soup.find_all("div", class_="event-card"):
-            match = {
-                "homeTeam": match_element.find("div", class_="e2e-event-team1-name").get_text(strip=True) if match_element.find("div", class_="e2e-event-team1-name") else "N/A",
-                "awayTeam": match_element.find("div", class_="e2e-event-team2-name").get_text(strip=True) if match_element.find("div", class_="e2e-event-team2-name") else "N/A",
-                "time": match_element.find("span", class_="event-card-label").get_text(strip=True) if match_element.find("span", class_="event-card-label") else "N/A",
-                "odds": {"homeWin": "N/A", "draw": "N/A", "awayWin": "N/A"},
-            }
+            home_team = match_element.find("div", class_="e2e-event-team1-name")
+            away_team = match_element.find("div", class_="e2e-event-team2-name")
+            match_time = match_element.find("span", class_="event-card-label")
+            
+            if home_team and away_team and match_time:
+                match = {
+                    "homeTeam": home_team.get_text(strip=True),
+                    "awayTeam": away_team.get_text(strip=True),
+                    "time": match_time.get_text(strip=True),
+                    "odds": {"homeWin": "N/A", "draw": "N/A", "awayWin": "N/A"},
+                }
 
-            # Extract odds
-            odds = match_element.select("div.odd-offer div:nth-child(1) button div span.odd-button__odd-value-new")
-            if len(odds) >= 3:
-                match["odds"]["homeWin"] = odds[0].get_text(strip=True).replace(",", "")
-                match["odds"]["draw"] = odds[1].get_text(strip=True).replace(",", "")
-                match["odds"]["awayWin"] = odds[2].get_text(strip=True).replace(",", "")
+                # Extract odds
+                odds = match_element.select("div.odd-offer div:nth-child(1) button div span.odd-button__odd-value-new")
+                if len(odds) >= 3:
+                    match["odds"]["homeWin"] = odds[0].get_text(strip=True).replace(",", "")
+                    match["odds"]["draw"] = odds[1].get_text(strip=True).replace(",", "")
+                    match["odds"]["awayWin"] = odds[2].get_text(strip=True).replace(",", "")
 
-            matches.append(match)
+                matches.append(match)
 
         return matches
 
