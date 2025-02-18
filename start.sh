@@ -37,8 +37,9 @@ if [ "$RENDER" == "true" ]; then
   echo "Chromium version: $CHROMIUM_VERSION"
 
   # Download the matching ChromeDriver version
-  echo "Downloading ChromeDriver for Chromium version $CHROMIUM_VERSION..."
-  wget -q "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip" -O chromedriver.zip
+  CHROMEDRIVER_VERSION="135.0.7022.0"  # The version that matches Chromium 135
+  echo "Downloading ChromeDriver for Chromium version $CHROMEDRIVER_VERSION..."
+  wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" -O chromedriver.zip
 
   # Unzip and move ChromeDriver to the proper location
   unzip chromedriver.zip
