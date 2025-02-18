@@ -32,9 +32,8 @@ if [ "$RENDER" == "true" ]; then
     export CHROMIUM_PATH="$CHROME_PATH"
   fi
 
-  # Forcing Chromium version 114
-  CHROMIUM_VERSION="114.0.5735.90"  # This is a known stable release of Chromium version 114
-
+  # Ensure matching ChromeDriver version 114.0.5735.90
+  CHROMIUM_VERSION="114.0.5735.90"  # Explicit version for Chromium 114
   echo "Chromium version forced to $CHROMIUM_VERSION"
 
   # Download ChromeDriver for version 114
