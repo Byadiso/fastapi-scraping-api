@@ -9,10 +9,10 @@ if [ "$RENDER" == "true" ]; then
   # Install dependencies for Chromium
   apt-get update && apt-get install -y wget curl unzip gnupg
 
-  # Download and extract Chromium (Render setup)
+  # Download and extract Chromium (Force version 114 for compatibility)
   mkdir -p ./chromium
-  wget -qO ./chromium/chrome.zip "https://download-chromium.appspot.com/dl/Linux_x64"
-  unzip ./chromium/chrome.zip -d ./chromium/
+  wget -qO ./chromium/chrome.zip "https://download-chromium.appspot.com/dl/Linux_x64?type=tar"
+  tar -xvzf ./chromium/chrome.zip -C ./chromium/
   rm ./chromium/chrome.zip
 
   # Log the directory structure to see where the binaries are
@@ -32,25 +32,14 @@ if [ "$RENDER" == "true" ]; then
     export CHROMIUM_PATH="$CHROME_PATH"
   fi
 
-  # Get Chromium version
-  CHROMIUM_VERSION=$(./chromium/chrome-linux/chrome --version 2>&1 | awk '{print $3}' | cut -d'.' -f1,2)
-  echo "Chromium version detected: $CHROMIUM_VERSION"
+  # Forcing Chromium version 114
+  CHROMIUM_VERSION="114.0.5735.90"  # This is a known stable release of Chromium version 114
 
-  # Download the matching ChromeDriver version for Chromium
-  # Note: We'll now directly match the version based on Chromium version
-  case "$CHROMIUM_VERSION" in
-    "135.0")
-      CHROMEDRIVER_VERSION="135.0.7022.0"
-      ;;
-    *)
-      echo "Error: No matching ChromeDriver version for Chromium version $CHROMIUM_VERSION!"
-      exit 1
-      ;;
-  esac
+  echo "Chromium version forced to $CHROMIUM_VERSION"
 
-  # Download the correct ChromeDriver for the Chromium version
-  echo "Downloading ChromeDriver version $CHROMEDRIVER_VERSION..."
-  wget -q "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" -O chromedriver.zip
+  # Download ChromeDriver for version 114
+  echo "Downloading ChromeDriver for Chromium version 114..."
+  wget -q "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip" -O chromedriver.zip
 
   # Unzip and move ChromeDriver to the proper location
   unzip chromedriver.zip
