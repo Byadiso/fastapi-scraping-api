@@ -13,15 +13,22 @@ echo "Extracting Chromium..."
 unzip /opt/chromium/chrome.zip -d /opt/chromium/
 rm /opt/chromium/chrome.zip
 
-# Find the Chromium binary
+# Log the directory structure to see where the binaries are
+echo "Listing contents of /opt/chromium:"
+ls -l /opt/chromium/
+
+# Search for the chromium binary
 CHROME_PATH=$(find /opt/chromium/ -type f -name "chrome" | head -n 1)
 
+# Log if binary is found or not
 if [ -z "$CHROME_PATH" ]; then
     echo "Error: Chromium not found after manual download!"
     exit 1
+else
+    echo "Chromium found at $CHROME_PATH"
 fi
 
-# Set environment variables to use the downloaded Chromium binary
+# Set environment variables for Chromium
 export GOOGLE_CHROME_BIN="$CHROME_PATH"
 export CHROMIUM_PATH="$CHROME_PATH"
 
