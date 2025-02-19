@@ -14,10 +14,10 @@ import atexit
 
 app = FastAPI()
 
-# ✅ Enable CORS to allow frontend requests
+# Enable CORS to allow frontend requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://sportpick.netlify.app/",
+    allow_origins=["https://sportpick.netlify.app",
                    "https://fastapi-scraping-api-production.up.railway.app"],  # Update with frontend URL
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
